@@ -14,6 +14,15 @@ class Program{
 		
 		Console.Write("enter a number: ");
 		choose = Convert.ToInt32(Console.ReadLine());
+		switch(choose){
+				case 1:
+					phone.store();
+					break;
+				case 2:
+					phone.edit();
+					break;
+			}
+			}while(choose != 4);
 		}
 	}
 	
@@ -37,4 +46,68 @@ class Student{
 		this.AreaCode = areacode;
 		this.PhoneNumber = phonenumber;
 		}
-}
+	public void Getdetails(){
+		Console.WriteLine($"\n {Surname} {FirstName} is a {Occupation}. His number is {PhoneNumber}");
+		}
+	public string GetNumber(){
+		return StudentNumber;
+		}
+	}
+	
+class PhoneBook{
+	List<Student> students = new List<Student>();
+	
+	public PhoneBook()
+    {
+        students = new List<Student>();
+    }
+    
+	public void store(){
+		bool anotherentry = true;
+		
+		
+		while(anotherentry){
+			Console.Write("enter student number: ");
+			string StudentNumber = Console.ReadLine();
+			Console.Write("enter student number: ");
+			string Surname = Console.ReadLine();
+			Console.Write("enter student number: ");
+			string FirstName = Console.ReadLine();
+			Console.Write("enter student number: ");
+			string Occupation = Console.ReadLine();
+			Console.Write("enter student number: ");
+			char Gender = Convert.ToChar(Console.ReadLine());
+			Console.Write("enter student number: ");
+			string CountryCode = Console.ReadLine();
+			Console.Write("enter student number: ");
+			string AreaCode = Console.ReadLine();
+			Console.Write("enter student number: ");
+			string PhoneNumber = Console.ReadLine();
+			
+			Student newstudent = new Student(StudentNumber, Surname, FirstName, Occupation, Gender, CountryCode, AreaCode, PhoneNumber);
+			students.Add(newstudent);
+			Console.Write("do you want to store another student? Y/N: ");
+			char choice = Convert.ToChar(Console.ReadLine());
+			
+			if(char.ToUpper(choice) == 'Y'){
+				anotherentry = true;
+				}
+			else{
+				anotherentry = false;
+				}
+			}
+			
+		}
+		
+		public void edit(){
+			Console.Write("enter stduent number: ");
+			string studentnum = Console.ReadLine();
+			foreach(Student student in students){
+				if (studentnum == student.GetNumber()){
+					Console.WriteLine($"here is the existing information about {studentnum}:");
+					student.Getdetails();
+					}
+				}
+			}
+	
+	}
