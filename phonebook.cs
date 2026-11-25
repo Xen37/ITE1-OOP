@@ -21,7 +21,10 @@ class Program{
 				case 2:
 					phone.edit();
 					break;
-			}
+				case 3:
+					phone.search();
+					break;
+				}
 			}while(choose != 4);
 		}
 	}
@@ -52,8 +55,15 @@ class Student{
 	public string GetNumber(){
 		return StudentNumber;
 		}
-	public string GetCountrycode(){
+	public string GetSurname(){
+		return Surname;
+		}
+	public string GetCountryCode(){
 		return CountryCode;
+		}
+	public void GetFullDetails(){
+		Console.WriteLine($"\n{Surname} {FirstName}, with student number {StudentNumber}, is a {Occupation}. His number is {PhoneNumber}");
+		Console.WriteLine();
 		}
 	public void SetStudentnumber(string studentnumber){
 		StudentNumber = studentnumber;
@@ -97,8 +107,16 @@ class PhoneBook{
 			string Occupation = Console.ReadLine();
 			Console.Write("enter Gender: ");
 			char Gender = Convert.ToChar(Console.ReadLine());
-			Console.Write("enter CountryCode: ");
-			string CountryCode = Console.ReadLine();
+			string CountryCode;
+			do
+			{
+				Console.Write("Enter CountryCode: ");
+				CountryCode = Console.ReadLine();
+				if (!IsValidCountryCode(CountryCode))
+				{
+					Console.WriteLine("Invalid country code!");
+				}
+			} while (!IsValidCountryCode(CountryCode));
 			Console.Write("enter Areacode: ");
 			string AreaCode = Console.ReadLine();
 			Console.Write("enter phone number: ");
@@ -106,6 +124,7 @@ class PhoneBook{
 			
 			Student newstudent = new Student(StudentNumber, Surname, FirstName, Occupation, Gender, CountryCode, AreaCode, PhoneNumber);
 			students.Add(newstudent);
+			
 			Console.Write("do you want to store another student? Y/N: ");
 			char choice = Convert.ToChar(Console.ReadLine());
 			
@@ -128,18 +147,23 @@ class PhoneBook{
 			
 			foreach(Student student in students){
 				if (studentnum == student.GetNumber()){
+					Console.WriteLine();
 					Console.Write($"here is the existing information about {studentnum}:");
 					student.Getdetails();
 					studentfound = student;
 					}
-				else{
-					Console.WriteLine("student not found");
-					}
 				}
 				
+				 if (studentfound == null)
+					{
+						Console.WriteLine();
+						Console.WriteLine("Student not found!");
+						return;
+					}
 
 				
 				while(editing){
+				Console.WriteLine();
 				Console.WriteLine("which of the following information do you wish to change?");
 				Console.WriteLine("[1] studen number");
 				Console.WriteLine("[2] surname");
@@ -149,9 +173,11 @@ class PhoneBook{
 				Console.WriteLine("[6] area code");
 				Console.WriteLine("[7] phone number");
 				Console.WriteLine("[8] None - go back to main menu");
+				Console.WriteLine();
 				
 				Console.Write("Enter Number: ");
 				choice = Convert.ToInt32(Console.ReadLine());
+				Console.WriteLine();
 				
 				switch(choice){
 						case 1:
@@ -179,7 +205,7 @@ class PhoneBook{
 							Console.Write("Enter new Country code: ");
 							string CountryCode = Console.ReadLine();
 							studentfound.SetCountrycode(CountryCode);
-							Console.WriteLine($"modified information country code: {studentfound.GetCountrycode()} ");
+							Console.WriteLine($"modified information country code: {studentfound.GetCountryCode()} ");
 							break;
 						case 6:
 							Console.Write("Enter new Area Code: ");
@@ -198,5 +224,153 @@ class PhoneBook{
 				}
 				
 			}
-	
+			
+		
+		public void search()
+		{
+			Dictionary<string, string> countries = new Dictionary<string, string>()
+			{
+				{"1", "63"},
+				{"2", "66"},
+				{"3", "65"},
+				{"4", "62"},
+				{"5", "60"}
+			};
+
+			Dictionary<string, string> countriesname = new Dictionary<string, string>()
+			{
+				{"1", "Philippines"},
+				{"2", "Thailand"},
+				{"3", "Singapore"},
+				{"4", "Indonesia"},
+				{"5", "Malaysia"}
+			};
+
+			List<string> selectedCountries = new List<string>();
+			List<string> selectedName = new List<string>();
+
+			bool selecting = true;
+			int count = 1;
+			bool all = false;
+
+			Console.WriteLine("\nFrom which country:");
+			Console.WriteLine("[1] Philippines");
+			Console.WriteLine("[2] Thailand");
+			Console.WriteLine("[3] Singapore");
+			Console.WriteLine("[4] Indonesia");
+			Console.WriteLine("[5] Malaysia");
+			Console.WriteLine("[6] ALL");
+			Console.WriteLine("[0] No More");
+
+			while (selecting)
+			{
+				Console.Write($"Enter country {count}: ");
+				string choice = Console.ReadLine();
+
+				if (choice == "0")
+				{
+					selecting = false;
+				}
+				else if (choice == "6")
+				{
+					all = true;
+					selecting = false;
+				}
+				else if (countries.ContainsKey(choice))
+				{
+					if (!selectedCountries.Contains(countries[choice]))
+					{
+						selectedCountries.Add(countries[choice]);
+						selectedName.Add(countriesname[choice]);
+
+						Console.WriteLine("Country added!");
+						count++;
+					}
+					else
+					{
+						Console.WriteLine("Country already selected!");
+					}
+				}
+				else
+				{
+					Console.WriteLine("Invalid choice!");
+				}
+			}
+
+			if (!all && selectedCountries.Count == 0)
+			{
+				Console.WriteLine("No countries selected.");
+				return;
+			}
+
+			List<Student> results = new List<Student>();
+
+			foreach (Student student in students)
+			{
+				if (all || selectedCountries.Contains(student.GetCountryCode()))
+				{
+					results.Add(student);
+				}
+			}
+
+			results.Sort((a, b) =>
+				string.Compare(
+					a.GetSurname(),
+					b.GetSurname(),
+					StringComparison.OrdinalIgnoreCase
+				)
+			);
+
+			if (results.Count == 0)
+			{
+				Console.WriteLine("\nNo students found.");
+				return;
+			}
+
+			Console.Write("\nHere are the students from ");
+
+			if (all)
+			{
+				Console.Write("ALL countries");
+			}
+			else
+			{
+				bool first = true;
+
+				for (int i = 0; i < selectedCountries.Count; i++)
+				{
+					foreach (Student student in results)
+					{
+						if (student.GetCountryCode() == selectedCountries[i])
+						{
+							if (!first)
+							{
+								Console.Write(" and ");
+							}
+
+							Console.Write(selectedName[i]);
+							first = false;
+							break;
+						}
+					}
+				}
+			}
+
+			Console.WriteLine(":");
+
+			foreach (Student student in results)
+			{
+				student.GetFullDetails();
+			}
+		}
+		public bool IsValidCountryCode(string code)
+			{
+				return code == "63" ||
+					   code == "66" ||
+					   code == "65" ||
+					   code == "62" ||
+					   code == "60";
+			}
+					
 	}
+
